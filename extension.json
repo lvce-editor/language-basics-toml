@@ -1,5 +1,6 @@
 {
   "id": "builtin.language-basics-toml",
+  "version": "0.0.0-dev",
   "name": "Language Basics Toml",
   "description": "Provides syntax highlighting and bracket matching in Toml files.",
   "languages": [
