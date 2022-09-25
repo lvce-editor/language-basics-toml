@@ -1,1 +1,6 @@
+JsonPropertyName
+Whitespace
+Punctuation
+Whitespace
+Numeric
 Text
