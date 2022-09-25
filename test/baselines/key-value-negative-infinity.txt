@@ -1,1 +1,5 @@
-Text
+JsonPropertyName
+Whitespace
+Punctuation
+Whitespace
+PropertyValueString
