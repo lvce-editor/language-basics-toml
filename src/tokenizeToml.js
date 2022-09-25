@@ -69,6 +69,8 @@ export const initialLineState = {
   stack: [],
 }
 
+export const hasArrayReturn = true
+
 /**
  * @param {string} line
  * @param {any} lineState
@@ -109,11 +111,9 @@ export const tokenizeLine = (line, lineState) => {
         console.log({ state, line })
         throw new Error('no')
     }
-    index += next[0].length
-    tokens.push({
-      type: token,
-      length: next[0].length,
-    })
+    const tokenLength = next[0].length
+    index += tokenLength
+    tokens.push(token, tokenLength)
   }
   return {
     state,
