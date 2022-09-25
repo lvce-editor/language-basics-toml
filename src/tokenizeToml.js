@@ -6,6 +6,7 @@ export const State = {
   InsideLineComment: 2,
   AfterPropertyName: 3,
   AfterPropertyNameAfterEqualSign: 4,
+  InsideString: 5,
 }
 
 export const StateMap = {
@@ -19,6 +20,8 @@ export const StateMap = {
 export const TokenType = {
   CssSelector: 1,
   Whitespace: 2,
+  PunctuationString: 3,
+  String: 4,
   None: 57,
   Unknown: 881,
   NewLine: 884,
@@ -29,7 +32,6 @@ export const TokenType = {
   PropertyName: 12,
   PropertyValueString: 14,
   Punctuation: 13,
-  String: 188,
   LanguageConstant: 11,
 }
 
@@ -47,6 +49,8 @@ export const TokenMap = {
   [TokenType.Punctuation]: 'Punctuation',
   [TokenType.PropertyValueString]: 'PropertyValueString',
   [TokenType.Numeric]: 'Numeric',
+  [TokenType.PunctuationString]: 'PunctuationString',
+  [TokenType.String]: 'String',
 }
 
 const RE_LINE_COMMENT_START = /^#/
@@ -80,6 +84,8 @@ const RE_COMBINATOR = /^[\+\>\~]/
 const RE_LANGUAGE_CONSTANT = /^(?:true|false)\b/
 const RE_EQUAL_SIGN = /^=/
 const RE_LOCAL_TIME = /\d{2}:\d{2}:\d{2}(?:\.\d+)?/
+const RE_QUOTE_DOUBLE = /^"/
+const RE_STRING_DOUBLE_QUOTE_CONTENT = /^[^"]+/
 
 export const initialLineState = {
   state: State.TopLevelContent,
@@ -161,9 +167,23 @@ export const tokenizeLine = (line, lineState) => {
         } else if ((next = part.match(RE_INF))) {
           token = TokenType.Numeric
           state = State.TopLevelContent
+        } else if ((next = part.match(RE_QUOTE_DOUBLE))) {
+          token = TokenType.Punctuation
+          state = State.InsideString
         } else if ((next = part.match(RE_ANYTHING))) {
           token = TokenType.PropertyValueString
           state = State.TopLevelContent
+        } else {
+          throw new Error('no')
+        }
+        break
+      case State.InsideString:
+        if ((next = part.match(RE_QUOTE_DOUBLE))) {
+          token = TokenType.PunctuationString
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_STRING_DOUBLE_QUOTE_CONTENT))) {
+          token = TokenType.String
+          state = State.InsideString
         } else {
           throw new Error('no')
         }
