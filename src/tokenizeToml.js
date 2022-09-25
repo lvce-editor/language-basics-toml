@@ -77,6 +77,7 @@ const RE_QUERY_CONTENT = /^[^\)]+/
 const RE_COMBINATOR = /^[\+\>\~]/
 const RE_LANGUAGE_CONSTANT = /^(?:true|false)\b/
 const RE_EQUAL_SIGN = /^=/
+const RE_LOCAL_TIME = /\d{2}:\d{2}:\d{2}(?:\.\d+)?/
 
 export const initialLineState = {
   state: State.TopLevelContent,
@@ -142,6 +143,9 @@ export const tokenizeLine = (line, lineState) => {
           state = State.AfterPropertyNameAfterEqualSign
         } else if ((next = part.match(RE_LANGUAGE_CONSTANT))) {
           token = TokenType.LanguageConstant
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_LOCAL_TIME))) {
+          token = TokenType.Numeric
           state = State.TopLevelContent
         } else if ((next = part.match(RE_NUMERIC))) {
           token = TokenType.Numeric
