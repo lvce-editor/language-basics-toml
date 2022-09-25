@@ -3,4 +3,3 @@ Whitespace
 Punctuation
 Whitespace
 Numeric
-Text
