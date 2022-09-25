@@ -2,4 +2,4 @@ JsonPropertyName
 Whitespace
 Punctuation
 Whitespace
-PropertyValueString
+Numeric
