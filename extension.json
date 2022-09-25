@@ -7,7 +7,7 @@
     {
       "id": "toml",
       "extensions": [".toml", ".tml", ".replit"],
-      "filenames": ["Cargo.lock", "Gopkg.lock"],
+      "fileNames": ["Cargo.lock", "Gopkg.lock"],
       "tokenize": "src/tokenizeToml.js"
     }
   ]
