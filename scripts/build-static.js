@@ -26,9 +26,6 @@ fs.rmSync(join(root, 'dist'), { recursive: true, force: true })
 
 fs.mkdirSync(path.join(root, 'dist'))
 
-// fs.mkdirSync(join(root, 'dist', commitHash, 'extensions', `builtin.theme-${name}`), {
-//   recursive: true,
-// })
 fs.cpSync(join(root, 'node_modules', '@lvce-editor', 'server', 'static'), join(root, 'dist'), {
   recursive: true,
 })
