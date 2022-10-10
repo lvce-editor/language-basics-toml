@@ -24,3 +24,5 @@ jobs:
         run: npm ci
         if: steps.npm-cache.outputs.cache-hit != 'true'
       - run: npm test
+      - name: Build static site
+        run: node scripts/build-static.js
