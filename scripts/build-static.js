@@ -188,3 +188,10 @@ fs.copyFileSync(join(root, 'README.md'), join(root, 'dist', commitHash, 'extensi
 fs.copyFileSync(join(root, 'extension.json'), join(root, 'dist', commitHash, 'extensions', id, 'extension.json'))
 
 fs.cpSync(join(root, 'src'), join(root, 'dist', commitHash, 'extensions', id, 'src'), { recursive: true })
+
+fs.rmSync(join(root, 'dist', commitHash, 'playground'), { recursive: true, force: true })
+fs.cpSync(join(root, 'test', 'cases'), join(root, 'dist', commitHash, 'playground'), { recursive: true })
+
+const testFiles = readdirSync(join(root, 'test', 'cases'))
+const fileMap = testFiles.map((file) => `/playground/${file}`)
+writeJson(join(root, 'dist', commitHash, 'config', 'fileMap.json'), fileMap)
