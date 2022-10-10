@@ -18,11 +18,11 @@ const getPathPrefix = () => {
   const { PATH_PREFIX } = process.env
   if (PATH_PREFIX === 'auto') {
     const [author, name] = id.split('.')
-    return name
+    return `/${name}`
   }
   return PATH_PREFIX
 }
-const pathPrefix = process.env.PATH_PREFIX || ''
+const pathPrefix = getPathPrefix()
 
 const dirents = readdirSync(join(root, 'node_modules', '@lvce-editor', 'server', 'static'))
 const RE_COMMIT_HASH = /^[a-z\d]+$/
