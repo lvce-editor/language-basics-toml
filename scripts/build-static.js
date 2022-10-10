@@ -5,14 +5,6 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const root = path.join(__dirname, '..')
-const pathPrefix = process.env.PATH_PREFIX || ''
-
-const dirents = readdirSync(join(root, 'node_modules', '@lvce-editor', 'server', 'static'))
-const RE_COMMIT_HASH = /^[a-z\d]+$/
-const isCommitHash = (dirent) => {
-  return dirent.length === 7 && dirent.match(RE_COMMIT_HASH)
-}
-const commitHash = dirents.find(isCommitHash) || ''
 
 const readJson = (path) => {
   const content = readFileSync(path, 'utf8')
@@ -21,6 +13,23 @@ const readJson = (path) => {
 
 const extensionJson = readJson(join(root, 'extension.json'))
 const id = extensionJson.id
+
+const getPathPrefix = () => {
+  const { PATH_PREFIX } = process.env
+  if (PATH_PREFIX === 'auto') {
+    const [author, name] = id.split('.')
+    return name
+  }
+  return PATH_PREFIX
+}
+const pathPrefix = process.env.PATH_PREFIX || ''
+
+const dirents = readdirSync(join(root, 'node_modules', '@lvce-editor', 'server', 'static'))
+const RE_COMMIT_HASH = /^[a-z\d]+$/
+const isCommitHash = (dirent) => {
+  return dirent.length === 7 && dirent.match(RE_COMMIT_HASH)
+}
+const commitHash = dirents.find(isCommitHash) || ''
 
 fs.rmSync(join(root, 'dist'), { recursive: true, force: true })
 
