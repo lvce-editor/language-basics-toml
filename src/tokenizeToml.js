@@ -8,6 +8,7 @@ export const State = {
   InsideDoubleQuoteString: 5,
   InsideSingleQuoteString: 6,
   InsideArray: 7,
+  InsideObject: 8,
 }
 
 export const StateMap = {
@@ -123,6 +124,7 @@ export const tokenizeLine = (line, lineState) => {
           token = TokenType.Whitespace
           state = State.TopLevelContent
         } else if ((next = part.match(RE_ANYTHING))) {
+          part
           token = TokenType.Text
           state = State.TopLevelContent
         } else {
@@ -147,25 +149,25 @@ export const tokenizeLine = (line, lineState) => {
           state = State.AfterPropertyNameAfterEqualSign
         } else if ((next = part.match(RE_LANGUAGE_CONSTANT))) {
           token = TokenType.LanguageConstant
-          state = State.TopLevelContent
+          state = stack.pop() || State.TopLevelContent
         } else if ((next = part.match(RE_LOCAL_TIME))) {
           token = TokenType.Numeric
-          state = State.TopLevelContent
+          state = stack.pop() || State.TopLevelContent
         } else if ((next = part.match(RE_NUMERIC_INTEGER))) {
           token = TokenType.Numeric
-          state = State.TopLevelContent
+          state = stack.pop() || State.TopLevelContent
         } else if ((next = part.match(RE_NUMERIC_FLOAT))) {
           token = TokenType.Numeric
-          state = State.TopLevelContent
+          state = stack.pop() || State.TopLevelContent
         } else if ((next = part.match(RE_LINE_COMMENT))) {
           token = TokenType.Comment
-          state = State.TopLevelContent
+          state = stack.pop() || State.TopLevelContent
         } else if ((next = part.match(RE_NAN))) {
           token = TokenType.Numeric
-          state = State.TopLevelContent
+          state = stack.pop() || State.TopLevelContent
         } else if ((next = part.match(RE_INF))) {
           token = TokenType.Numeric
-          state = State.TopLevelContent
+          state = stack.pop() || State.TopLevelContent
         } else if ((next = part.match(RE_QUOTE_DOUBLE))) {
           token = TokenType.Punctuation
           state = State.InsideDoubleQuoteString
@@ -175,6 +177,9 @@ export const tokenizeLine = (line, lineState) => {
         } else if ((next = part.match(RE_SQUARE_OPEN))) {
           token = TokenType.Punctuation
           state = State.InsideArray
+        } else if ((next = part.match(RE_CURLY_OPEN))) {
+          token = TokenType.Punctuation
+          state = State.InsideObject
         } else if ((next = part.match(RE_ANYTHING))) {
           token = TokenType.PropertyValueString
           state = State.TopLevelContent
@@ -226,8 +231,32 @@ export const tokenizeLine = (line, lineState) => {
           throw new Error('no')
         }
         break
+      case State.InsideObject:
+        if ((next = part.match(RE_WHITESPACE))) {
+          token = TokenType.Whitespace
+          state = State.InsideObject
+        } else if ((next = part.match(RE_PROPERTY_NAME))) {
+          token = TokenType.PropertyName
+          state = State.InsideObject
+        } else if ((next = part.match(RE_EQUAL_SIGN))) {
+          token = TokenType.Punctuation
+          state = State.AfterPropertyNameAfterEqualSign
+          stack.push(State.InsideObject)
+        } else if ((next = part.match(RE_CURLY_CLOSE))) {
+          token = TokenType.Punctuation
+          state = stack.pop() || State.TopLevelContent
+        } else if ((next = part.match(RE_SQUARE_OPEN))) {
+          token = TokenType.Punctuation
+          state = State.InsideArray
+          stack.push(State.InsideObject)
+        } else if ((next = part.match(RE_COMMA))) {
+          token = TokenType.Punctuation
+          state = State.InsideObject
+        } else {
+          throw new Error('no')
+        }
+        break
       default:
-        console.log({ state, line })
         throw new Error('no')
     }
     const tokenLength = next[0].length
