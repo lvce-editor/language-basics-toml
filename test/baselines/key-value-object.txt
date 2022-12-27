@@ -1,0 +1,15 @@
+JsonPropertyName
+Whitespace
+Punctuation
+Whitespace
+Punctuation
+Whitespace
+JsonPropertyName
+Whitespace
+Punctuation
+Whitespace
+Punctuation
+String
+PunctuationString
+Whitespace
+Punctuation
