@@ -233,6 +233,13 @@ export const tokenizeLine = (line, lineState) => {
         } else if ((next = part.match(RE_NUMERIC_INTEGER))) {
           token = TokenType.Numeric
           state = State.InsideArray
+        } else if ((next = part.match(RE_SQUARE_OPEN))) {
+          token = TokenType.Punctuation
+          state = State.InsideArray
+          stack.push(State.InsideArray)
+        } else if ((next = part.match(RE_LINE_COMMENT))) {
+          token = TokenType.Comment
+          state = State.InsideArray
         } else {
           part
           throw new Error('no')
