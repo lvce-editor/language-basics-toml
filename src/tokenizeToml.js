@@ -9,6 +9,7 @@ export const State = {
   InsideSingleQuoteString: 6,
   InsideArray: 7,
   InsideObject: 8,
+  InsideTripleDoubleQuoteString: 9,
 }
 
 export const StateMap = {
@@ -90,6 +91,9 @@ const RE_QUOTE_DOUBLE = /^"/
 const RE_QUOTE_SINGLE = /^'/
 const RE_STRING_DOUBLE_QUOTE_CONTENT = /^[^"]+/
 const RE_STRING_SINGLE_QUOTE_CONTENT = /^[^']+/
+const RE_TRIPLE_DOUBLE_QUOTE = /^"{3}/
+const RE_TRIPLE_QUOTED_STRING_CONTENT_DOUBLE_QUOTES = /.*(?=""")/s
+const RE_TRIPLE_QUOTED_STRING_CONTENT_COMMON = /.*/s
 
 export const initialLineState = {
   state: State.TopLevelContent,
@@ -168,6 +172,9 @@ export const tokenizeLine = (line, lineState) => {
         } else if ((next = part.match(RE_INF))) {
           token = TokenType.Numeric
           state = stack.pop() || State.TopLevelContent
+        } else if ((next = part.match(RE_TRIPLE_DOUBLE_QUOTE))) {
+          token = TokenType.Punctuation
+          state = State.InsideTripleDoubleQuoteString
         } else if ((next = part.match(RE_QUOTE_DOUBLE))) {
           token = TokenType.Punctuation
           state = State.InsideDoubleQuoteString
@@ -252,6 +259,20 @@ export const tokenizeLine = (line, lineState) => {
         } else if ((next = part.match(RE_COMMA))) {
           token = TokenType.Punctuation
           state = State.InsideObject
+        } else {
+          throw new Error('no')
+        }
+        break
+      case State.InsideTripleDoubleQuoteString:
+        if ((next = part.match(RE_TRIPLE_DOUBLE_QUOTE))) {
+          token = TokenType.Punctuation
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_TRIPLE_QUOTED_STRING_CONTENT_DOUBLE_QUOTES))) {
+          token = TokenType.String
+          state = State.InsideTripleDoubleQuoteString
+        } else if ((next = part.match(RE_TRIPLE_QUOTED_STRING_CONTENT_COMMON))) {
+          token = TokenType.String
+          state = State.InsideTripleDoubleQuoteString
         } else {
           throw new Error('no')
         }
