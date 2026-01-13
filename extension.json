@@ -6,9 +6,17 @@
   "languages": [
     {
       "id": "toml",
-      "extensions": [".toml", ".tml", ".replit"],
-      "fileNames": ["Cargo.lock", "Gopkg.lock"],
+      "extensions": [
+        ".toml",
+        ".tml",
+        ".replit"
+      ],
+      "fileNames": [
+        "Cargo.lock",
+        "Gopkg.lock"
+      ],
       "tokenize": "src/tokenizeToml.js"
     }
-  ]
+  ],
+  "repository": "https://github.com/lvce-editor/language-basics-toml"
 }
