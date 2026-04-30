@@ -10,6 +10,11 @@ export const State = {
   InsideArray: 7,
   InsideObject: 8,
   InsideTripleDoubleQuoteString: 9,
+  InsideTableHeader: 10,
+  AfterTableHeaderSegment: 11,
+  InsideArrayTableHeader: 12,
+  AfterArrayTableHeaderSegment: 13,
+  AfterQuotedPropertyName: 14,
 }
 
 export const StateMap = {
@@ -60,6 +65,7 @@ const RE_WHITESPACE = /^ +/
 const RE_CURLY_OPEN = /^\{/
 const RE_CURLY_CLOSE = /^\}/
 const RE_PROPERTY_NAME = /^[a-zA-Z\-\_\d\.]+\b(?=\s*=)/
+const RE_BARE_KEY = /^[a-zA-Z\-_\d]+/
 const RE_COLON = /^:/
 const RE_PROPERTY_VALUE = /^[^;\}]+/
 const RE_SEMICOLON = /^;/
@@ -77,7 +83,9 @@ const RE_ROUND_OPEN = /^\(/
 const RE_ROUND_CLOSE = /^\)/
 const RE_PSEUDO_SELECTOR_CONTENT = /^[^\)]+/
 const RE_SQUARE_OPEN = /^\[/
+const RE_DOUBLE_SQUARE_OPEN = /^\[\[/
 const RE_SQUARE_CLOSE = /^\]/
+const RE_DOUBLE_SQUARE_CLOSE = /^\]\]/
 const RE_ATTRIBUTE_SELECTOR_CONTENT = /^[^\]]+/
 const RE_QUERY = /^@[a-z\-]+/
 const RE_STAR = /^\*/
@@ -86,6 +94,7 @@ const RE_QUERY_CONTENT = /^[^\)]+/
 const RE_COMBINATOR = /^[\+\>\~]/
 const RE_LANGUAGE_CONSTANT = /^(?:true|false)\b/
 const RE_EQUAL_SIGN = /^=/
+const RE_DOT = /^\./
 const RE_LOCAL_TIME = /\d{2}:\d{2}:\d{2}(?:\.\d+)?/
 const RE_QUOTE_DOUBLE = /^"/
 const RE_QUOTE_SINGLE = /^'/
@@ -118,9 +127,23 @@ export const tokenizeLine = (line, lineState) => {
     const part = line.slice(index)
     switch (state) {
       case State.TopLevelContent:
-        if ((next = part.match(RE_PROPERTY_NAME))) {
+        if ((next = part.match(RE_DOUBLE_SQUARE_OPEN))) {
+          token = TokenType.Punctuation
+          state = State.InsideArrayTableHeader
+        } else if ((next = part.match(RE_SQUARE_OPEN))) {
+          token = TokenType.Punctuation
+          state = State.InsideTableHeader
+        } else if ((next = part.match(RE_PROPERTY_NAME))) {
           token = TokenType.PropertyName
           state = State.AfterPropertyName
+        } else if ((next = part.match(RE_QUOTE_DOUBLE))) {
+          token = TokenType.Punctuation
+          state = State.InsideDoubleQuoteString
+          stack.push(State.AfterQuotedPropertyName)
+        } else if ((next = part.match(RE_QUOTE_SINGLE))) {
+          token = TokenType.Punctuation
+          state = State.InsideSingleQuoteString
+          stack.push(State.AfterQuotedPropertyName)
         } else if ((next = part.match(RE_LINE_COMMENT))) {
           token = TokenType.Comment
           state = State.TopLevelContent
@@ -133,6 +156,20 @@ export const tokenizeLine = (line, lineState) => {
           state = State.TopLevelContent
         } else {
           part //?
+          throw new Error('no')
+        }
+        break
+      case State.AfterQuotedPropertyName:
+        if ((next = part.match(RE_EQUAL_SIGN))) {
+          token = TokenType.Punctuation
+          state = State.AfterPropertyNameAfterEqualSign
+        } else if ((next = part.match(RE_WHITESPACE))) {
+          token = TokenType.Whitespace
+          state = State.AfterQuotedPropertyName
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
+          state = State.TopLevelContent
+        } else {
           throw new Error('no')
         }
         break
@@ -189,6 +226,90 @@ export const tokenizeLine = (line, lineState) => {
           state = State.InsideObject
         } else if ((next = part.match(RE_ANYTHING))) {
           token = TokenType.PropertyValueString
+          state = State.TopLevelContent
+        } else {
+          throw new Error('no')
+        }
+        break
+      case State.InsideTableHeader:
+        if ((next = part.match(RE_WHITESPACE))) {
+          token = TokenType.Whitespace
+          state = State.InsideTableHeader
+        } else if ((next = part.match(RE_BARE_KEY))) {
+          token = TokenType.PropertyName
+          state = State.AfterTableHeaderSegment
+        } else if ((next = part.match(RE_QUOTE_DOUBLE))) {
+          token = TokenType.Punctuation
+          state = State.InsideDoubleQuoteString
+          stack.push(State.AfterTableHeaderSegment)
+        } else if ((next = part.match(RE_QUOTE_SINGLE))) {
+          token = TokenType.Punctuation
+          state = State.InsideSingleQuoteString
+          stack.push(State.AfterTableHeaderSegment)
+        } else if ((next = part.match(RE_SQUARE_CLOSE))) {
+          token = TokenType.Punctuation
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
+          state = State.TopLevelContent
+        } else {
+          throw new Error('no')
+        }
+        break
+      case State.AfterTableHeaderSegment:
+        if ((next = part.match(RE_DOT))) {
+          token = TokenType.Punctuation
+          state = State.InsideTableHeader
+        } else if ((next = part.match(RE_WHITESPACE))) {
+          token = TokenType.Whitespace
+          state = State.AfterTableHeaderSegment
+        } else if ((next = part.match(RE_SQUARE_CLOSE))) {
+          token = TokenType.Punctuation
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
+          state = State.TopLevelContent
+        } else {
+          throw new Error('no')
+        }
+        break
+      case State.InsideArrayTableHeader:
+        if ((next = part.match(RE_WHITESPACE))) {
+          token = TokenType.Whitespace
+          state = State.InsideArrayTableHeader
+        } else if ((next = part.match(RE_BARE_KEY))) {
+          token = TokenType.PropertyName
+          state = State.AfterArrayTableHeaderSegment
+        } else if ((next = part.match(RE_QUOTE_DOUBLE))) {
+          token = TokenType.Punctuation
+          state = State.InsideDoubleQuoteString
+          stack.push(State.AfterArrayTableHeaderSegment)
+        } else if ((next = part.match(RE_QUOTE_SINGLE))) {
+          token = TokenType.Punctuation
+          state = State.InsideSingleQuoteString
+          stack.push(State.AfterArrayTableHeaderSegment)
+        } else if ((next = part.match(RE_DOUBLE_SQUARE_CLOSE))) {
+          token = TokenType.Punctuation
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
+          state = State.TopLevelContent
+        } else {
+          throw new Error('no')
+        }
+        break
+      case State.AfterArrayTableHeaderSegment:
+        if ((next = part.match(RE_DOT))) {
+          token = TokenType.Punctuation
+          state = State.InsideArrayTableHeader
+        } else if ((next = part.match(RE_WHITESPACE))) {
+          token = TokenType.Whitespace
+          state = State.AfterArrayTableHeaderSegment
+        } else if ((next = part.match(RE_DOUBLE_SQUARE_CLOSE))) {
+          token = TokenType.Punctuation
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
           state = State.TopLevelContent
         } else {
           throw new Error('no')

@@ -1,3 +1,5 @@
 Punctuation
+NewLine
 JsonPropertyName
-Punctuation
+Whitespace
+Text

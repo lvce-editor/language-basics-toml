@@ -1,0 +1,10 @@
+model = "gpt-5.5"
+model_reasoning_effort = "medium"
+[plugins."github@openai-curated"]
+enabled = true
+
+[projects."/home/simon/Documents/levivilet/diff-view"]
+trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
