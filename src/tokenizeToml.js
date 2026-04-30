@@ -166,6 +166,9 @@ export const tokenizeLine = (line, lineState) => {
         } else if ((next = part.match(RE_WHITESPACE))) {
           token = TokenType.Whitespace
           state = State.AfterQuotedPropertyName
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
+          state = State.TopLevelContent
         } else {
           throw new Error('no')
         }
@@ -246,6 +249,9 @@ export const tokenizeLine = (line, lineState) => {
         } else if ((next = part.match(RE_SQUARE_CLOSE))) {
           token = TokenType.Punctuation
           state = State.TopLevelContent
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
+          state = State.TopLevelContent
         } else {
           throw new Error('no')
         }
@@ -259,6 +265,9 @@ export const tokenizeLine = (line, lineState) => {
           state = State.AfterTableHeaderSegment
         } else if ((next = part.match(RE_SQUARE_CLOSE))) {
           token = TokenType.Punctuation
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
           state = State.TopLevelContent
         } else {
           throw new Error('no')
@@ -282,6 +291,9 @@ export const tokenizeLine = (line, lineState) => {
         } else if ((next = part.match(RE_DOUBLE_SQUARE_CLOSE))) {
           token = TokenType.Punctuation
           state = State.TopLevelContent
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
+          state = State.TopLevelContent
         } else {
           throw new Error('no')
         }
@@ -295,6 +307,9 @@ export const tokenizeLine = (line, lineState) => {
           state = State.AfterArrayTableHeaderSegment
         } else if ((next = part.match(RE_DOUBLE_SQUARE_CLOSE))) {
           token = TokenType.Punctuation
+          state = State.TopLevelContent
+        } else if ((next = part.match(RE_ANYTHING))) {
+          token = TokenType.Text
           state = State.TopLevelContent
         } else {
           throw new Error('no')

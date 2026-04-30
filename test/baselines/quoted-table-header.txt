@@ -5,6 +5,7 @@ Whitespace
 Punctuation
 String
 PunctuationString
+NewLine
 JsonPropertyName
 Whitespace
 Punctuation
@@ -12,6 +13,7 @@ Whitespace
 Punctuation
 String
 PunctuationString
+NewLine
 Punctuation
 JsonPropertyName
 Punctuation
@@ -19,11 +21,14 @@ Punctuation
 String
 PunctuationString
 Punctuation
+NewLine
 JsonPropertyName
 Whitespace
 Punctuation
 Whitespace
 LanguageConstant
+NewLine
+NewLine
 Punctuation
 JsonPropertyName
 Punctuation
@@ -31,6 +36,7 @@ Punctuation
 String
 PunctuationString
 Punctuation
+NewLine
 JsonPropertyName
 Whitespace
 Punctuation
@@ -38,11 +44,14 @@ Whitespace
 Punctuation
 String
 PunctuationString
+NewLine
+NewLine
 Punctuation
 JsonPropertyName
 Punctuation
 JsonPropertyName
 Punctuation
+NewLine
 Punctuation
 String
 PunctuationString
