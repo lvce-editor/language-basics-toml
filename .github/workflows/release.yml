@@ -5,12 +5,15 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
 jobs:
   create-release:
     name: create-release
     runs-on: ubuntu-24.04
     outputs:
-      upload_url: ${{ steps.release.outputs.upload_url }}
       rg_version: ${{ env.RG_VERSION }}
     steps:
       - name: Get the release version from the tag
@@ -34,11 +37,11 @@ jobs:
     needs: ['create-release']
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         id: npm-cache
         with:
           path: '**/node_modules'
@@ -58,14 +61,9 @@ jobs:
           echo "ASSET=$staging.tar.br" >> $GITHUB_ENV
 
       - name: Upload release archive
-        uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.ASSET }}
-          asset_name: ${{ env.ASSET }}
-          asset_content_type: application/octet-stream
+        run: gh release upload "${{ needs.create-release.outputs.rg_version }}" "${{ env.ASSET }}" --clobber
 
       - name: Publish GitHub release
         env:
